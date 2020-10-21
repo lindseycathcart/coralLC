@@ -1,0 +1,263 @@
+---
+title: "Coral lab"
+author: "Lindsey Cathcart"
+date: "10/21/2020"
+output: html_document
+---
+
+# Problem set: Modeling Coral-Reef Systems
+
+
+
+
+## Part A
+
+
+### #1&2. Flow diagram
+![Flow diagram for entire coral reef system.](C:/Users/Lindsey Cathcart/Desktop/BCOR381B/training_project/first coral.jpg)
+
+
+### #3. New flow diagram
+
+
+![Flow diagram for basic coral reef ecology.](C:/Users/Lindsey Cathcart/Desktop/BCOR381B/training_project/coral flow.jpg)
+                                     
+         
+
+
+#### Parameters:
+* s: intrinsic growth rate of parrotfish
+
+* a: competition between macroalgae and live coral
+
+* gamma: competition between macroalgae & algal turf
+
+* r: competition between turf and coral
+
+* d: death rate of coral
+
+* K(C): carrying capacity (=C)
+
+
+### #4. Program the model in R.
+
+```{r}
+s=0.49
+a=0.1
+gamma=0.8
+r=1
+d=0.44
+
+
+require(deSolve)
+
+
+# Initial values
+state <- c(C=0.25, M=0.25, Tu=0.25, P=0.25) # set a population size for each
+times <- seq(1,101,by=1)
+
+# Parameters
+parameters <- c(s=0.49,a=0.1,gamma=0.8,r=1,d=0.44)
+
+# Model
+coral_model <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    dM <- (a*M*C) - ((P*M)/(M+Tu))+(gamma*M*Tu)
+    dC <- (r*Tu*C) - (d*C) - (a*M*C)
+    dT <- ((P*M)/(M+Tu)) - (gamma*M*Tu) - (r*Tu*C) + (d*C)
+    dP <- (s*P)*(1-(P/(C)))
+    list(c(dM,dC,dT,dP))
+  })}
+
+# Solve model and plot results
+out <- ode(y = state,times=times,func=coral_model,parms=parameters)
+par(mfrow=c(2,2))
+plot(out[,1],out[,2],ylab='Live Coral',xlab='time',las=1)
+plot(out[,1],out[,3],ylab='Macroalgae',xlab='time',las=1)
+plot(out[,1],out[,4],ylab='Algal turf',xlab='time',las=1)
+plot(out[,1],out[,5],ylab='Parrotfish',xlab='time',las=1)
+
+
+```
+
+### #5. Produce figures and design analyses to address the following questions: (a) What are the long-term dynamics of the system with the default parameters given below? (b) What are the most important parameters in determining the long-term dynamics?
+
+By default, the coral initially drops in presence, but rebounds to a moderate state once macroalgae is controlled by parrotfish. When each element has an equal state (0.25), macroalgae drops to a low state, while algal turf is successful and increases. Parrotfish behave like the coral - an initial dip close to 0, followed by stabilizing around 0.2.
+
+```{r, echo=FALSE}
+# increase r, competition between coral and algal turf
+
+# Initial values
+state <- c(C=0.25, M=0.25, Tu=0.25, P=0.25) # set a population size for each
+times <- seq(1,101,by=1)
+
+# Parameters
+parameters <- c(s=0.49,a=0.1,gamma=0.8,r=1,d=0.44)
+
+# Model
+coral_model <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    dM <- (a*M*C) - ((P*M)/(M+Tu))+(gamma*M*Tu)
+    dC <- (r*Tu*C) - (d*C) - (a*M*C)
+    dT <- ((P*M)/(M+Tu)) - (gamma*M*Tu) - (r*Tu*C) + (d*C)
+    dP <- (s*P)*(1-(P/(C)))
+    list(c(dM,dC,dT,dP))
+  })}
+
+# Solve model and plot results
+
+out <- ode(y = state,times=times,func=coral_model,parms=parameters)
+par(mfrow=c(2,2))
+plot(out[,1],out[,2],ylab='Live Coral',xlab='time',las=1)
+plot(out[,1],out[,3],ylab='Macroalgae',xlab='time',las=1)
+plot(out[,1],out[,4],ylab='Algal turf',xlab='time',las=1)
+plot(out[,1],out[,5],ylab='Parrotfish',xlab='time',las=1)
+
+
+```
+
+When increasing the parameter r, or competition between coral and algal turf, both the algal turf and macroalgae increase in state over time while the parrotfish and coral decrease.
+
+
+```{r, echo=FALSE}
+# increase a, competition between coral and macroalgae
+
+# Initial values
+state <- c(C=0.25, M=0.25, Tu=0.25, P=0.25) # set a population size for each
+times <- seq(1,101,by=1)
+
+# Parameters
+parameters <- c(s=0.49,a=0.9,gamma=0.8,r=1,d=0.44)
+
+# Model
+coral_model <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    dM <- (a*M*C) - ((P*M)/(M+Tu))+(gamma*M*Tu)
+    dC <- (r*Tu*C) - (d*C) - (a*M*C)
+    dT <- ((P*M)/(M+Tu)) - (gamma*M*Tu) - (r*Tu*C) + (d*C)
+    dP <- (s*P)*(1-(P/(C)))
+    list(c(dM,dC,dT,dP))
+  })}
+
+# Solve model and plot results
+
+out <- ode(y = state,times=times,func=coral_model,parms=parameters)
+par(mfrow=c(2,2))
+plot(out[,1],out[,2],ylab='Live Coral',xlab='time',las=1)
+plot(out[,1],out[,3],ylab='Macroalgae',xlab='time',las=1)
+plot(out[,1],out[,4],ylab='Algal turf',xlab='time',las=1)
+plot(out[,1],out[,5],ylab='Parrotfish',xlab='time',las=1)
+
+
+```
+
+Increasing a, the competition between macroalgae and coral, results in an increase in coral and parrotfish over time and a significant reduction in macroalgae.
+
+The parameters most important in determining the long-term dynamics of the system are the competitive interactions between coral and the algae types. Changing the intrinsic growth rate of parrotfish did not have a big impact.
+
+
+
+## Part B
+
+
+### #7. Build a consensus flow diagram
+![Social and ecological influences on coral reefs.](C:/Users/Lindsey Cathcart/Desktop/BCOR381B/training_project/ecosocialcoral.png)
+
+### #8. Predictions for the long-term dynamics of the coupled system
+
+We predict that parrotfish populations will be important in controlling the outcome of the remainder of the system. If parrotfish populations grow, people are less willing to care about coral reef conservation, so while parrotfish indirectly benefit the coral by controlling algae populations, they also signal ecosystem health. Parrotfish indirectly effect coral, both positively and negatively. The parameters impacting parrotfish - people willing to be involved in conservation and algal competition parameters - are expected to impact long-term system dynamics.
+
+
+### #9. Program the coupled model
+```{r, echo=FALSE}
+
+coupled_model <- function(Time, State, Pars) {
+  with(as.list(c(State, Pars)), {
+    dM <-  a*M*C - (P*M)/(M+T) + gamma*M*T
+    dC <-  r*T*C - d*C - a*M*C
+    dT <- (P*M)/(M+T) - gamma*M*T - r*T*C + d*C
+    dP <- s*P*(1 - P/C) - sigma*P*(1 - X)
+    dX <- kappa*X*(1 - X)*(-1 + j*(1 - C) - sigma*P*(1 - X) + phi*(2*X - 1))
+    return(list(c(dM,dC,dT,dP,dX)))  
+  })
+}
+
+pars <- c(a = 0.1, gamma = 0.8, r = 1.0, d = 0.44, s = 0.49, sigma = 0.5, kappa= 1.014, j=1.68, sigma = 0.5, phi = 0.2)
+
+
+yini  <- c(M = 0.05, C = 0.9, T = 0.05, P = 0.4, X = 0.1)
+times <- seq(0, 100, by = 0.1)
+out   <- ode(yini, times, coupled_model, pars)
+
+par(mfrow=c(1,2))
+matplot(out[ , 1], out[ , 2:5], type = "l", xlab = "time", ylab = "Percent cover",main = "Ecological dynamics", lwd = 2,ylim=c(0,1))
+legend('bottomright',legend = c('macroalgae','coral reef','turf algae','parrotfish'),col = c(1,2,3,4),pch = 18)
+
+matplot(out[ , 1], out[ , 6], type = "l", xlab = "time", ylab = "Fraction that are conservationists",main = "Conservation opinion", lwd = 2,ylim=c(0,1),col=5)
+
+
+
+```
+
+### #10a: What are the long-term dynamics of the system with the default parameters?
+
+By default, coral and parrotfish decrease together to extremely low states approaching 0 as macroalgae eventually takes over the system. The loss of coral and parrotfish coincides with the conservation opinion reaching 1, indicating an overwhelming desire for conservation practices in place.
+
+### #10b: What are the most important parameters determining long-term dynamics?
+
+```{r, echo=FALSE}
+
+coupled_model <- function(Time, State, Pars) {
+  with(as.list(c(State, Pars)), {
+    dM <-  a*M*C - (P*M)/(M+T) + gamma*M*T
+    dC <-  r*T*C - d*C - a*M*C
+    dT <- (P*M)/(M+T) - gamma*M*T - r*T*C + d*C
+    dP <- s*P*(1 - P/C) - sigma*P*(1 - X)
+    dX <- kappa*X*(1 - X)*(-1 + j*(1 - C) - sigma*P*(1 - X) + phi*(2*X - 1))
+    return(list(c(dM,dC,dT,dP,dX)))  
+  })
+}
+
+pars <- c(a = 0.1, gamma = 0.05, r = 1.0, d = 0.44, s = 0.49, sigma = 0.5, kappa= 1.014, j=1.68, sigma = 0.5, phi = 0.2)
+
+
+yini  <- c(M = 0.05, C = 0.9, T = 0.05, P = 0.4, X = 0.1)
+times <- seq(0, 100, by = 0.1)
+out   <- ode(yini, times, coupled_model, pars)
+
+par(mfrow=c(1,2))
+matplot(out[ , 1], out[ , 2:5], type = "l", xlab = "time", ylab = "Percent cover",main = "Ecological dynamics", lwd = 2,ylim=c(0,1))
+legend('bottomright',legend = c('macroalgae','coral reef','turf algae','parrotfish'),col = c(1,2,3,4),pch = 18)
+
+matplot(out[ , 1], out[ , 6], type = "l", xlab = "time", ylab = "Fraction that are conservationists",main = "Conservation opinion", lwd = 2,ylim=c(0,1),col=5)
+
+
+
+```
+
+The most important parameter appears to be gamma, which when increased reduces the state of macroalgae, allowing the coral reef to occupy more space and reach a stable state in the ecosystem. When coral is stable, the conservation opinion rests at 0. Modifying the other parameters changes the time it takes for macroalgae and conservation opinion to reach 1 while the coral and parrotfish reach 0 without modifying the behavior of the system in other ways. Gamma directly impacts macroalgae in a way that allows the persistence of coral.
+
+
+
+## Part C
+
+### #11. How did your predictions about the coupled socio-ecological systems line up with the results from the model? How did your results line up with the original modeling paper?
+
+I was surprised that most of the parameters didn't seem to effect the behavior beyond speeding or slowing the eventual loss of coral and parrotfish. I also found it interesting that the different types of algae wouldn't coexist due to competition between them. There must always be a superior competitor or a process of random drift that eventually excludes one species in favor of the other.
+
+
+### #12. How did your flow diagrams change over the course of the lessons? What did you learn through the process of developing flow diagrams with others?
+
+As I learned about the interactions between parts of the system, my flow diagram became more connected. It was interesting to compare the ecological diagram to my classmates' social diagram, especially the role of the conservation opinion. It acts as a sort of regulatory mechanisms where coral that is doing well won't persist at a high state because the better it is doing, the less people care about conservation.  
+
+
+### #13. What were the limitations of the coupled socio-ecological model used here? What changes would you make to the model?
+
+I wish the coupled model included the human growth rate; I think it is interesting to consider the pressure that increase in growth has on the opinions of the public, such that an increase in our growth rate would result in a decrease in desire for conservation. Including that element in the system would have made the model more properly reflect the prioritization of conservation in our society.
+
+
+### #14. What aspects of this assignment were most or least useful? How would you improve this assignment?
+
+The partnering between the eco and social groups allowed us to get a more holistic view of the system without having to spend as much time working on both halves, but I had a difficult time understanding the social half because I didn't work with the unique elements of that system. It would be useful to have more structure with the collaboration, because I had a difficult time explaining our system to the social team and they had a difficult time explaining the social system to us; I felt that no one was certain that the model was operating 'correctly'. One specific area of confusion was the role of "state" and the values for each parameter - why would some values be only decimals but others could be >1? I still don't properly understand this or what these values represent.
+
+
